@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión Insumo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto Mono', monospace; }
+        
+        /* ESTILOS GLOBALES PARA INPUTS Y SELECTS */
+        input, select, textarea {
+            background-color: #1f2937 !important; /* Gris Oscuro */
+            color: #ffffff !important;           /* Texto Blanco */
+            border: 1px solid #4b5563;           /* Borde */
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            width: 100%;
+            outline: none;
+        }
+
+        /* ESTILO PARA LAS OPCIONES AL DESPLEGAR */
+        select option {
+            background-color: #1f2937;
+            color: white;
+            padding: 10px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-lg bg-gray-800 rounded-lg shadow-2xl p-8 border-t-4 border-blue-500">
+        <h2 class="text-2xl font-bold mb-6 text-white text-center">
+            {% if object %}Editar Insumo{% else %}Nuevo Insumo{% endif %}
+        </h2>
+
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+                <div class="bg-red-500/20 border border-red-500 p-3 rounded text-red-200 text-sm mb-4">
+                    <p class="font-bold">Error:</p>
+                    {{ form.errors }}
+                </div>
+            {% endif %}
+
+            <!-- Nombre -->
+            <div>
+                <label class="block text-gray-400 text-xs uppercase font-bold mb-1">Nombre del Insumo</label>
+                {{ form.nombre }}
+            </div>
+
+            <!-- Stock y Alerta -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-gray-400 text-xs uppercase font-bold mb-1">Stock Inicial</label>
+                    {{ form.stock_actual }}
+                </div>
+                <div>
+                    <label class="block text-gray-400 text-xs uppercase font-bold mb-1">Alerta Mínima</label>
+                    {{ form.stock_minimo }}
+                </div>
+            </div>
+
+            <!-- Unidad y Proveedor -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-gray-400 text-xs uppercase font-bold mb-1">Unidad</label>
+                    <!-- Django renderizará aquí el <select> gracias al forms.py -->
+                    {{ form.unidad_medida }}
+                </div>
+                <div>
+                    <label class="block text-gray-400 text-xs uppercase font-bold mb-1">Proveedor (Opcional)</label>
+                    {{ form.proveedor_principal }}
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex gap-4 mt-8">
+                <a href="{% url 'ingrediente_list' %}" class="flex-1 py-3 bg-gray-700 hover:bg-gray-600 text-center rounded font-bold text-gray-300 transition">
+                    Cancelar
+                </a>
+                <button type="submit" class="flex-1 py-3 bg-blue-600 hover:bg-blue-500 rounded font-bold text-white shadow-lg transition">
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

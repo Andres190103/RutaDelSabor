@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Almacén - FoodTruck</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Roboto Mono', monospace; }</style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+
+    <!-- Navbar Simple -->
+    <nav class="bg-gray-800 p-4 border-b border-gray-700 mb-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold text-blue-400 flex items-center gap-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                CONTROL DE INVENTARIO
+            </h1>
+            <a href="{% url 'ingrediente_create' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-bold transition flex gap-2">
+                <span>+ Nuevo Insumo</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4">
+        <div class="bg-gray-800 rounded-lg overflow-hidden shadow-xl border border-gray-700">
+            <table class="w-full text-left">
+                <thead class="bg-gray-900 text-gray-400 text-xs uppercase">
+                    <tr>
+                        <th class="px-6 py-4">Ingrediente</th>
+                        <th class="px-6 py-4 text-center">Stock Actual</th>
+                        <th class="px-6 py-4 text-center">Mínimo</th>
+                        <th class="px-6 py-4 text-center">Unidad</th>
+                        <th class="px-6 py-4 text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-700">
+                    {% for item in ingredientes %}
+                        <!-- Lógica de Alerta: Si stock <= minimo, fondo rojo suave -->
+                        <tr class="{% if item.stock_actual <= item.stock_minimo %}bg-red-900/30{% else %}hover:bg-gray-700{% endif %} transition">
+                            <td class="px-6 py-4 font-bold flex items-center gap-2">
+                                {{ item.nombre }}
+                                {% if item.stock_actual <= item.stock_minimo %}
+                                    <span class="bg-red-600 text-white text-xs px-2 py-0.5 rounded animate-pulse">BAJO STOCK</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 text-center text-xl font-mono {% if item.stock_actual <= item.stock_minimo %}text-red-400 font-bold{% else %}text-green-400{% endif %}">
+                                {{ item.stock_actual }}
+                            </td>
+                            <td class="px-6 py-4 text-center text-gray-500">
+                                {{ item.stock_minimo }}
+                            </td>
+                            <td class="px-6 py-4 text-center text-sm uppercase text-gray-400">
+                                {{ item.unidad_medida }}
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <a href="{% url 'ingrediente_update' item.id %}" class="text-blue-400 hover:text-white underline text-sm">Editar</a>
+                                <a href="{% url 'ingrediente_delete' item.id %}" class="text-red-500 hover:text-red-300 text-sm font-bold flex-inline items-center gap-1">Eliminar</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center text-gray-500 italic">
+                                No hay ingredientes registrados. ¡Empieza a llenar tu almacen!
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Botón para volver a ventas -->
+        <div class="mt-6">
+            <!-- Usamos la URL dinámica en lugar de fija para evitar errores -->
+             <a href="{% url 'orden_list' %}" class="text-gray-500 hover:text-white flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Volver a Ventas
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>
