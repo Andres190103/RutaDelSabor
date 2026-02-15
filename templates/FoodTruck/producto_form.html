@@ -9,19 +9,19 @@
     <style>
         body { font-family: 'Roboto Mono', monospace; }
         
-        /* FIX UNIVERSAL PARA INPUTS OSCUROS */
         input[type="text"], input[type="number"], select, textarea {
             background-color: #1f2937 !important;
             color: white !important;
             border: 1px solid #4b5563;
             border-radius: 0.375rem;
             outline: none;
+            padding: 0.5rem;
+            width: 100%;
         }
         input:focus, select:focus, textarea:focus {
-            border-color: #f97316; /* Naranja */
+            border-color: #f97316;
             box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.3);
         }
-        /* Flecha personalizada para selects */
         select {
             appearance: none;
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
@@ -29,162 +29,170 @@
             background-repeat: no-repeat;
             background-size: 1.5em 1.5em;
             padding-right: 2.5rem;
+            cursor: pointer;
+        }
+        input[type="file"] {
+            background-color: transparent !important;
+            border: none;
         }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen p-4 flex items-center justify-center">
 
-    <div class="w-full max-w-4xl bg-gray-800 rounded-xl shadow-2xl border border-gray-700 overflow-hidden">
-        
-        <!-- Encabezado con degradado naranja -->
-        <div class="bg-gradient-to-r from-orange-600 to-red-600 p-6 flex justify-between items-center shadow-lg">
-            <h1 class="text-2xl font-bold text-white flex items-center gap-2">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                {% if object %}Editar Receta{% else %}Nuevo Platillo{% endif %}
-            </h1>
-            <!-- Switch Activo/Inactivo (Visual) -->
-            <div class="flex items-center bg-black/20 rounded-full px-3 py-1">
-                <span class="text-xs font-bold uppercase mr-2 text-white">Disponible en Menú:</span>
-                {{ form.activo }} 
-            </div>
-        </div>
+    <!-- CORRECCIÓN: La etiqueta FORM ahora envuelve TODO el contenedor -->
+    <form method="post" enctype="multipart/form-data" class="w-full max-w-4xl">
+        {% csrf_token %}
 
-        <!-- IMPORTANTE: enctype="multipart/form-data" es obligatorio para subir imágenes -->
-        <form method="post" enctype="multipart/form-data" class="p-6">
-            {% csrf_token %}
+        <div class="bg-gray-800 rounded-xl shadow-2xl border border-gray-700 overflow-hidden">
             
-            {% if form.errors %}
-                <div class="bg-red-500/20 border-l-4 border-red-500 p-4 mb-6">
-                    <p class="font-bold text-red-100">Revisa los errores:</p>
-                    <ul class="list-disc list-inside text-sm text-red-200">
-                        {% for field in form %}
-                            {% for error in field.errors %}
-                                <li>{{ field.label }}: {{ error }}</li>
-                            {% endfor %}
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-
-            <!-- SECCIÓN 1: DATOS DEL PRODUCTO -->
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
+            <!-- Encabezado con degradado naranja -->
+            <!-- Ahora este encabezado (y el checkbox) está DENTRO del form -->
+            <div class="bg-gradient-to-r from-orange-600 to-red-600 p-6 flex justify-between items-center shadow-lg">
+                <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    {% if object %}Editar Receta{% else %}Nuevo Platillo{% endif %}
+                </h1>
                 
-                <!-- Columna Izquierda: Detalles (8 cols) -->
-                <div class="md:col-span-8 space-y-4">
-                    <div>
-                        <label class="text-gray-400 text-xs font-bold uppercase">Nombre del Platillo</label>
-                        {{ form.nombre }}
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-gray-400 text-xs font-bold uppercase">Categoría</label>
-                            {{ form.categoria }}
-                        </div>
-                        <div>
-                            <label class="text-gray-400 text-xs font-bold uppercase">Precio Venta ($)</label>
-                            {{ form.precio }}
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="text-gray-400 text-xs font-bold uppercase">Descripción (Menú QR)</label>
-                        {{ form.descripcion }}
-                    </div>
-                </div>
-
-                <!-- Columna Derecha: Imagen (4 cols) -->
-                <div class="md:col-span-4 flex flex-col justify-start">
-                    <label class="text-gray-400 text-xs font-bold uppercase mb-1">Foto del Platillo</label>
-                    <div class="border-2 border-dashed border-gray-600 rounded-lg p-4 text-center hover:bg-gray-700/50 transition h-full flex flex-col items-center justify-center">
-                        {% if object.imagen %}
-                            <img src="{{ object.imagen.url }}" class="h-32 w-32 object-cover rounded mb-2 border border-gray-500">
-                            <p class="text-xs text-green-400 mb-2">Imagen Actual Cargada</p>
-                        {% else %}
-                            <svg class="w-12 h-12 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        {% endif %}
-                        <div class="text-xs text-gray-300 w-full overflow-hidden">
-                            {{ form.imagen }}
-                        </div>
-                    </div>
+                <!-- Switch Activo/Inactivo -->
+                <div class="flex items-center bg-black/20 rounded-full px-3 py-1 border border-white/10">
+                    <span class="text-xs font-bold uppercase mr-2 text-white">En Menú:</span>
+                    {{ form.activo }} 
                 </div>
             </div>
 
-            <hr class="border-gray-700 my-6">
-
-            <!-- SECCIÓN 2: LA RECETA (FORMSET) -->
-            <div class="mb-2 flex justify-between items-end">
-                <div>
-                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                        <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                        Ingredientes y Costos
-                    </h3>
-                    <p class="text-xs text-gray-500">Define qué se descuenta del inventario al vender esto.</p>
-                </div>
-            </div>
-
-            <!-- TABLA DE INGREDIENTES -->
-            <div class="bg-gray-900 rounded-lg border border-gray-700 overflow-hidden mb-6">
-                <!-- Gestión del Formset -->
-                {{ receta_formset.management_form }}
-
-                <table class="w-full text-left">
-                    <thead class="bg-gray-800 text-gray-400 text-xs uppercase">
-                        <tr>
-                            <th class="px-4 py-3 w-1/2">Ingrediente (Inventario)</th>
-                            <th class="px-4 py-3 text-center">Cantidad a descontar</th>
-                            <th class="px-4 py-3 text-center w-20">Borrar</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-800">
-                        {% for form_receta in receta_formset %}
-                            <!-- Campos ocultos necesarios (ID) -->
-                            {% for hidden in form_receta.hidden_fields %}
-                                {{ hidden }}
+            <!-- Cuerpo del formulario -->
+            <div class="p-6">
+                
+                {% if form.errors %}
+                    <div class="bg-red-500/20 border-l-4 border-red-500 p-4 mb-6 rounded">
+                        <p class="font-bold text-red-100">Revisa los errores:</p>
+                        <ul class="list-disc list-inside text-sm text-red-200">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li>{{ field.label }}: {{ error }}</li>
+                                {% endfor %}
                             {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
 
-                            <tr class="hover:bg-gray-800/50 transition">
-                                <td class="p-3">
-                                    {{ form_receta.ingrediente }}
-                                    {% if form_receta.ingrediente.errors %}
-                                        <p class="text-red-500 text-xs mt-1">Selecciona un ingrediente válido</p>
-                                    {% endif %}
-                                </td>
-                                <td class="p-3">
-                                    <div class="flex items-center justify-center gap-2">
-                                        {{ form_receta.cantidad_necesaria }}
-                                        <!-- Aquí podrías poner texto dinámico de la unidad si usas JS -->
-                                    </div>
-                                </td>
-                                <td class="p-3 text-center align-middle">
-                                    <div class="flex justify-center">
-                                        {% if receta_formset.can_delete %}
-                                            {{ form_receta.DELETE }}
-                                        {% endif %}
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                <div class="p-2 bg-gray-800 text-right text-xs text-gray-500 italic">
-                    * Si necesitas más filas, guarda y vuelve a editar.
+                <!-- SECCIÓN 1: DATOS DEL PRODUCTO -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
+                    
+                    <!-- Columna Izquierda: Detalles (8 cols) -->
+                    <div class="md:col-span-8 space-y-4">
+                        <div>
+                            <label class="text-gray-400 text-xs font-bold uppercase mb-1 block">Nombre del Platillo</label>
+                            {{ form.nombre }}
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-gray-400 text-xs font-bold uppercase mb-1 block">Categoría</label>
+                                {{ form.categoria }}
+                            </div>
+                            <div>
+                                <label class="text-gray-400 text-xs font-bold uppercase mb-1 block">Precio Venta ($)</label>
+                                {{ form.precio }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-gray-400 text-xs font-bold uppercase mb-1 block">Descripción (Menú QR)</label>
+                            {{ form.descripcion }}
+                        </div>
+                    </div>
+
+                    <!-- Columna Derecha: Imagen (4 cols) -->
+                    <div class="md:col-span-4 flex flex-col justify-start">
+                        <label class="text-gray-400 text-xs font-bold uppercase mb-1 block">Foto del Platillo</label>
+                        <div class="border-2 border-dashed border-gray-600 rounded-lg p-4 text-center hover:bg-gray-700/50 transition h-full flex flex-col items-center justify-center bg-gray-800">
+                            {% if object.imagen %}
+                                <img src="{{ object.imagen.url }}" class="h-32 w-32 object-cover rounded mb-2 border border-gray-500 shadow-md">
+                                <p class="text-xs text-green-400 mb-2 font-bold">✓ Imagen Actual</p>
+                            {% else %}
+                                <svg class="w-12 h-12 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                <p class="text-xs text-gray-400 mb-2">Sin imagen</p>
+                            {% endif %}
+                            <div class="text-xs text-gray-300 w-full overflow-hidden relative">
+                                {{ form.imagen }}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Botones de Acción -->
-            <div class="flex gap-4 pt-4 border-t border-gray-700">
-                <!-- Asegúrate de crear la URL 'menu_list' más adelante -->
-                <a href="{% url 'menu_list' %}" class="w-1/3 py-3 bg-gray-700 hover:bg-gray-600 text-gray-300 font-bold rounded text-center transition">
-                    Cancelar
-                </a>
-                <button type="submit" class="w-2/3 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-bold rounded shadow-lg transform active:scale-95 transition">
-                    Guardar Platillo
-                </button>
-            </div>
+                <hr class="border-gray-700 my-6">
 
-        </form>
-    </div>
+                <!-- SECCIÓN 2: LA RECETA (FORMSET) -->
+                <div class="mb-4 flex justify-between items-end">
+                    <div>
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                            Ingredientes y Costos (Receta)
+                        </h3>
+                        <p class="text-xs text-gray-500">Define qué se descuenta del inventario al vender 1 unidad.</p>
+                    </div>
+                </div>
+
+                <!-- TABLA DE INGREDIENTES -->
+                <div class="bg-gray-900 rounded-lg border border-gray-700 overflow-hidden mb-6 shadow-inner">
+                    {{ receta_formset.management_form }}
+
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-800 text-gray-400 text-xs uppercase font-bold border-b border-gray-700">
+                            <tr>
+                                <th class="px-4 py-3 w-1/2">Ingrediente (Inventario)</th>
+                                <th class="px-4 py-3 text-center">Cantidad a descontar</th>
+                                <th class="px-4 py-3 text-center w-24">Borrar</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-800">
+                            {% for form_receta in receta_formset %}
+                                {% for hidden in form_receta.hidden_fields %}
+                                    {{ hidden }}
+                                {% endfor %}
+
+                                <tr class="hover:bg-gray-800/50 transition">
+                                    <td class="p-3">
+                                        {{ form_receta.ingrediente }}
+                                        {% if form_receta.ingrediente.errors %}
+                                            <p class="text-red-500 text-xs mt-1">Error en ingrediente</p>
+                                        {% endif %}
+                                    </td>
+                                    <td class="p-3">
+                                        <div class="flex items-center justify-center gap-2">
+                                            {{ form_receta.cantidad_necesaria }}
+                                        </div>
+                                    </td>
+                                    <td class="p-3 text-center align-middle">
+                                        <div class="flex justify-center items-center h-full">
+                                            {% if receta_formset.can_delete %}
+                                                <div class="scale-125">
+                                                    {{ form_receta.DELETE }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="flex gap-4 pt-4 border-t border-gray-700">
+                    <a href="{% url 'menu_list' %}" class="w-1/3 py-3 bg-gray-700 hover:bg-gray-600 text-gray-300 font-bold rounded text-center transition uppercase tracking-wider text-sm flex items-center justify-center">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="w-2/3 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-bold rounded shadow-lg transform active:scale-95 transition uppercase tracking-wider text-sm flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                        Guardar Platillo
+                    </button>
+                </div>
+
+            </div> <!-- Fin del cuerpo del formulario -->
+        </div>
+    </form> <!-- Cierre del FORM principal -->
 
 </body>
 </html>

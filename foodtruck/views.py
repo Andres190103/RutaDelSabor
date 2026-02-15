@@ -1,26 +1,62 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import ListView, CreateView, UpdateView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction # Importante para guardar receta y producto juntos
 
 from .models import Producto
+from Ventas.models import Orden
+from Inventario.models import Ingrediente
 from .forms import ProductoForm, RecetaFormSet
 
-# 1. LISTA DEL MENÚ
+class HomeView(LoginRequiredMixin, TemplateView):
+    template_name = 'FoodTruck/home.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        es_admin = False
+        es_chef = False
+        es_cajero = False
+
+        if user.is_superuser:
+            es_admin = True
+        elif hasattr(user, 'perfil') and user.perfil.rol:
+            roll = user.perfil.rol.nombre
+            if roll.lower() == 'admin': 
+                es_admin = True
+            elif roll.lower() == 'chef':
+                es_chef = True
+            elif roll.lower() == 'cajero':
+                es_cajero = True
+
+        context['es_admin'] = es_admin
+        context['es_chef'] = es_chef
+        context['es_cajero'] = es_cajero
+
+        # DATOS PARA EL DASHBOARD
+        if es_admin or es_chef or es_cajero:
+            context['ordenes_pendientes'] = Orden.objects.filter(estado__in=['Pendiente', 'Preparando']).count()
+
+        # ALERTAS DE STOCK PARA LA VISUALIZACION DE EL ADMIN
+        if es_admin:
+            from django.db.models import F
+            context['alertas_stock'] = Ingrediente.objects.filter(stock_actual__lte=F('stock_minimo')).count()
+
+        return context
+
 class MenuListView(LoginRequiredMixin, ListView):
     model = Producto
     template_name = 'FoodTruck/producto_list.html'
     context_object_name = 'productos'
 
-# 2. CREAR PLATILLO (Aquí es donde estaba faltando la lógica del formset)
 class ProductoCreateView(LoginRequiredMixin, CreateView):
     model = Producto
     form_class = ProductoForm
     template_name = 'FoodTruck/producto_form.html'
     success_url = reverse_lazy('menu_list')
 
-    # ESTO ES LO QUE FALTABA: Enviar la tabla de ingredientes al HTML
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         if self.request.POST:

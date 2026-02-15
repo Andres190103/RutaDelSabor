@@ -31,6 +31,9 @@
             </div>
             
             <div class="flex items-center gap-4">
+                <a href="{% url 'start_home' %}" class="text-gray-400 hover:text-white py-2 flex items-center gap-1 text-sm font-bold">
+                    ← Ir a Inicio
+                </a>
                 <!-- Botón Nueva Orden (Oculto para el Chef) -->
                 {% if not es_chef %}
                 <!-- CORRECCIÓN DE URL: Quitamos 'Ventas:' y dejamos solo el nombre -->
