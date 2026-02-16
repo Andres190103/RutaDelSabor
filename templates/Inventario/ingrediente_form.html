@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gestión Insumo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -10,14 +10,18 @@
         body { font-family: 'Roboto Mono', monospace; }
         
         /* ESTILOS GLOBALES PARA INPUTS Y SELECTS */
-        input, select, textarea {
-            background-color: #1f2937 !important; /* Gris Oscuro */
+        /* Forzamos estilos con !important para sobreescribir cualquier default de Django/Browsers */
+        input[type="text"], input[type="number"], input[type="email"], select, textarea {
+            background-color: #111827 !important; /* Gray-900 */
             color: #ffffff !important;           /* Texto Blanco */
-            border: 1px solid #4b5563;           /* Borde */
-            padding: 0.75rem;
-            border-radius: 0.375rem;
+            border: 1px solid #374151 !important; /* Gray-700 */
+            padding: 0.75rem !important;
+            border-radius: 0.5rem !important;
             width: 100%;
             outline: none;
+            font-size: 16px; /* CRÍTICO: Evita zoom automático en iOS al hacer focus */
+            transition: all 0.2s;
+            appearance: none; /* Quita estilos nativos del sistema operativo */
         }
 
         /* ESTILO PARA LAS OPCIONES AL DESPLEGAR */
@@ -28,65 +32,111 @@
         }
 
         input:focus, select:focus, textarea:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+            background-color: #1f2937 !important;
+        }
+        
+        /* Truco para agregar la flecha personalizada al <select> ya que usamos appearance: none */
+        select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem !important;
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen flex items-center justify-center p-4">
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col md:items-center md:justify-center p-0 md:p-4">
 
-    <div class="w-full max-w-lg bg-gray-800 rounded-lg shadow-2xl p-8 border-t-4 border-blue-500">
-        <h2 class="text-2xl font-bold mb-6 text-white text-center">
+    <!-- NAVBAR MÓVIL (Solo visible en pantallas pequeñas) -->
+    <!-- Permite cancelar rápidamente sin buscar el botón abajo -->
+    <nav class="bg-gray-800 p-4 border-b border-gray-700 flex justify-between items-center md:hidden sticky top-0 z-10 shadow-md">
+        <h1 class="text-lg font-bold text-blue-400 flex items-center gap-2">
+             {% if object %}
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                Editar Insumo
+             {% else %}
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                Nuevo Insumo
+             {% endif %}
+        </h1>
+        <a href="{% url 'ingrediente_list' %}" class="text-gray-400 hover:text-white p-1">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </a>
+    </nav>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <!-- En móvil: Fondo oscuro, full width. En PC: Tarjeta centrada con sombra -->
+    <div class="w-full md:max-w-lg bg-gray-900 md:bg-gray-800 md:rounded-xl md:shadow-2xl p-5 md:p-8 md:border md:border-gray-700 flex-grow md:flex-grow-0 overflow-y-auto">
+        
+        <!-- Título Desktop (Oculto en móvil porque ya está en el navbar) -->
+        <h2 class="hidden md:block text-2xl font-bold mb-6 text-white text-center border-b border-gray-700 pb-4">
             {% if object %}Editar Insumo{% else %}Nuevo Insumo{% endif %}
         </h2>
 
-        <form method="post" class="space-y-4">
+        <form method="post" class="space-y-5 pb-safe">
             {% csrf_token %}
             
+            <!-- Manejo de Errores -->
             {% if form.errors %}
-                <div class="bg-red-500/20 border border-red-500 p-3 rounded text-red-200 text-sm mb-4">
-                    <p class="font-bold">Error:</p>
-                    {{ form.errors }}
+                <div class="bg-red-500/10 border border-red-500/50 p-4 rounded-lg text-red-200 text-sm mb-6 animate-pulse">
+                    <p class="font-bold flex items-center gap-2 mb-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        Atención:
+                    </p>
+                    <ul class="list-disc list-inside opacity-80 space-y-1">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li><span class="font-semibold">{{ field.label }}:</span> {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
                 </div>
             {% endif %}
 
-            <!-- Nombre -->
+            <!-- CAMPO: NOMBRE -->
             <div>
-                <label class="block text-gray-400 text-xs uppercase font-bold mb-1">Nombre del Insumo</label>
+                <label class="block text-blue-400 text-xs uppercase font-bold mb-2 ml-1">Nombre del Insumo</label>
                 {{ form.nombre }}
             </div>
 
-            <!-- Stock y Alerta -->
+            <!-- GRID: STOCK Y ALERTA -->
+            <!-- Mantenemos 2 columnas incluso en móvil para ahorrar scroll vertical -->
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-gray-400 text-xs uppercase font-bold mb-1">Stock Inicial</label>
+                    <label class="block text-gray-400 text-xs uppercase font-bold mb-2 ml-1">Stock Inicial</label>
                     {{ form.stock_actual }}
                 </div>
                 <div>
-                    <label class="block text-gray-400 text-xs uppercase font-bold mb-1">Alerta Mínima</label>
+                    <label class="block text-gray-400 text-xs uppercase font-bold mb-2 ml-1 text-red-400">Alerta Mínima</label>
                     {{ form.stock_minimo }}
                 </div>
             </div>
 
-            <!-- Unidad y Proveedor -->
-            <div class="grid grid-cols-2 gap-4">
+            <!-- GRID: UNIDAD Y PROVEEDOR -->
+            <!-- En móviles muy pequeños (<sm) se apilan, sino 2 columnas -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-gray-400 text-xs uppercase font-bold mb-1">Unidad</label>
-                    <!-- Django renderizará aquí el <select> gracias al forms.py -->
+                    <label class="block text-gray-400 text-xs uppercase font-bold mb-2 ml-1">Unidad Medida</label>
                     {{ form.unidad_medida }}
                 </div>
                 <div>
-                    <label class="block text-gray-400 text-xs uppercase font-bold mb-1">Proveedor (Opcional)</label>
+                    <label class="block text-gray-400 text-xs uppercase font-bold mb-2 ml-1">Proveedor (Opcional)</label>
                     {{ form.proveedor_principal }}
                 </div>
             </div>
 
-            <!-- Botones -->
-            <div class="flex gap-4 mt-8">
-                <a href="{% url 'ingrediente_list' %}" class="flex-1 py-3 bg-gray-700 hover:bg-gray-600 text-center rounded font-bold text-gray-300 transition">
+            <!-- BOTONES -->
+            <div class="flex gap-3 mt-8 pt-6 border-t border-gray-800 md:border-gray-700/50">
+                <a href="{% url 'ingrediente_list' %}" class="w-1/2 py-3.5 bg-gray-700 hover:bg-gray-600 active:bg-gray-600 text-center rounded-lg font-bold text-gray-300 transition border border-gray-600">
                     Cancelar
                 </a>
-                <button type="submit" class="flex-1 py-3 bg-blue-600 hover:bg-blue-500 rounded font-bold text-white shadow-lg transition">
+                <button type="submit" class="w-1/2 py-3.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 rounded-lg font-bold text-white shadow-lg shadow-blue-900/50 transition flex justify-center items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     Guardar
                 </button>
             </div>

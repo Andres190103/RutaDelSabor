@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # SERVICIO 1: TU APLICACIÓN DJANGO
+  web:
+    build: .  # Construye la imagen usando el Dockerfile de la carpeta actual
+    command: python manage.py runserver 0.0.0.0:8000
+    
+    # VOLÚMENES: Sincroniza tu carpeta actual con la del contenedor.
+    # Si cambias código en tu VSCode, se actualiza en el contenedor al instante.
+    volumes:
+      - .:/app
+    
+    # PUERTOS: Conecta el puerto 8000 de tu PC con el 8000 del contenedor
+    ports:
+      - "8000:8000"
+    
+    # DEPENDENCIA: Espera a que la base de datos inicie antes de prender Django
+    depends_on:
+      - db
+    
+    # VARIABLES DE ENTORNO
+    # Aquí le pasamos la "llave" para conectarse a la base de datos de abajo.
+    environment:
+      - DEBUG=1
+      # Estructura: postgres://USUARIO:CONTRASEÑA@NOMBRE_SERVICIO:PUERTO/NOMBRE_DB
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/foodtruck_db
+
+  # SERVICIO 2: BASE DE DATOS (POSTGRESQL)
+  db:
+    image: postgres:13  # Descarga una imagen oficial de Postgres
+    
+    # VOLUMEN PERSISTENTE (IMPORTANTE)
+    # Esto asegura que los datos se guarden en tu disco duro real.
+    # Si borras el contenedor, los datos sobreviven aquí.
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    
+    # Configuración de usuario y contraseña de la BD
+    environment:
+      - POSTGRES_DB=foodtruck_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+# Definición del volumen para que Docker sepa que existe
+volumes:
+  postgres_data:
