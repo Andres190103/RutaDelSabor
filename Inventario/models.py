@@ -21,7 +21,7 @@ class Ingrediente(models.Model):
         ('pz', 'Piezas'),
     ]
     nombre = models.CharField(max_length=100)
-    stock_actual = models.DecimalField(max_digits=10, decimal_places=3) # 3 decimales para precisión en gramos
+    stock_actual = models.DecimalField(max_digits=10, decimal_places=3)
     stock_minimo = models.DecimalField(max_digits=10, decimal_places=3)
     unidad_medida = models.CharField(max_length=5, choices=UNIDADES)
     ultimo_costo = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
@@ -34,10 +34,6 @@ class Ingrediente(models.Model):
         return f"{self.nombre} ({self.stock_actual} {self.unidad_medida})"
 
 class CompraInsumo(models.Model):
-    """
-    Registra cuando compras insumos para aumentar el stock.
-    Fundamental para el Módulo de Proveedores y Finanzas.
-    """
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
     ingrediente = models.ForeignKey(Ingrediente, on_delete=models.CASCADE)
     cantidad = models.DecimalField(max_digits=10, decimal_places=3)
@@ -57,10 +53,6 @@ class CompraInsumo(models.Model):
         return f"Compra {self.ingrediente.nombre} - {self.fecha_compra.date()}"
     
 class CierreDia(models.Model):
-    """
-    Para la funcionalidad de Cierre de Turno.
-    Compara lo que el sistema dice que vendiste vs lo que cuentas físicamente.
-    """
     fecha = models.DateField(auto_now_add=True)
     responsable = models.ForeignKey(User, on_delete=models.CASCADE)
     

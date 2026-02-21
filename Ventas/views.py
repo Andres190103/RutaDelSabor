@@ -71,7 +71,7 @@ class CreateViewOrden(LoginRequiredMixin, UserPassesTestMixin, CreateView):
             # Si el usuario envió datos, recargamos el formset con esa info
             data['detalles'] = DetalleOrdenFormSet(self.request.POST)
         else:
-            # Si es la primera vez que entra, mostramos la tabla vacía
+            # Si es la primera vez que entra, se muestra la tabla vacía
             data['detalles'] = DetalleOrdenFormSet()
 
         precios = {p.id: float(p.precio) for p in Producto.objects.all()}
@@ -85,7 +85,7 @@ class CreateViewOrden(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         detalles = context['detalles']
         
         with transaction.atomic():
-            # Primero guardamos la Orden (para que tenga un ID)
+            # Primero se guarda la Orden (para que tenga un ID)
             self.object = form.save()
             
             if detalles.is_valid():
@@ -107,11 +107,11 @@ class CreateViewOrden(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         if user.is_superuser:
             return True
             
-        # 2. Si es empleado normal, verificamos su rol
+        # Si es empleado normal, verificamos su rol
         if hasattr(user, 'perfil') and user.perfil.rol:
             return user.perfil.rol.nombre != 'Chef'
             
-        # 3. Si no es superusuario y no tiene perfil, bloqueamos
+        # Si no es superusuario y no tiene perfil, bloqueamos
         return False
     
     def handle_no_permission(self):

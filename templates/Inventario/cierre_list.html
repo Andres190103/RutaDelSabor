@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Historial de Cierres</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Roboto Mono', monospace; }</style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
+
+    <!-- NAVBAR MÓVIL (Visible solo en pantallas pequeñas) -->
+    <nav class="w-full bg-gray-800 p-3 border-b border-gray-700 flex justify-between items-center md:hidden sticky top-0 z-20 shadow-md">
+        <a href="{% url 'start_home' %}" class="text-gray-400 hover:text-white p-2 rounded-full hover:bg-gray-700 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </a>
+        <h1 class="text-lg font-bold text-yellow-400 tracking-wide flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Historial Cierres
+        </h1>
+        <div class="w-10"></div> <!-- Espaciador para centrar el título -->
+    </nav>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div class="container mx-auto max-w-4xl p-4 flex-grow">
+        
+        <!-- ENCABEZADO DESKTOP (Oculto en móviles) -->
+        <div class="hidden md:flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-yellow-600/20 p-2 rounded-lg border border-yellow-600/50">
+                    <svg class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h1 class="text-2xl font-bold text-white">Historial de Cierres</h1>
+            </div>
+            <a href="{% url 'start_home' %}" class="bg-gray-800 text-gray-300 hover:text-white px-5 py-2.5 rounded-lg border border-gray-600 hover:bg-gray-700 transition flex items-center gap-2 font-bold shadow-md">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Volver
+            </a>
+        </div>
+
+        <!-- LISTA DE CIERRES -->
+        <div class="space-y-4">
+            {% for cierre in cierres %}
+            <div class="bg-gray-800 p-4 md:p-5 rounded-xl border border-gray-700 flex flex-col md:flex-row justify-between md:items-center gap-4 shadow-lg hover:border-gray-600 transition duration-200">
+                
+                <!-- Info del Cierre -->
+                <div class="border-b border-gray-700 md:border-0 pb-3 md:pb-0">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="bg-gray-700 text-gray-300 text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                            {{ cierre.fecha|date:"d M Y" }}
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2 mt-2">
+                        <div class="w-6 h-6 rounded-full bg-yellow-900/50 flex items-center justify-center border border-yellow-700/50">
+                            <span class="text-xs font-bold text-yellow-500">{{ cierre.responsable.username|make_list|first|upper }}</span>
+                        </div>
+                        <span class="text-white font-bold text-sm">{{ cierre.responsable.username }}</span>
+                    </div>
+                    {% if cierre.observaciones %}
+                        <p class="text-gray-400 text-xs mt-3 bg-gray-900/50 p-2 rounded-lg border-l-2 border-yellow-500 italic flex items-start gap-2">
+                            <svg class="w-3 h-3 text-yellow-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            "{{ cierre.observaciones }}"
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <!-- Grilla de Valores -->
+                <div class="grid grid-cols-3 gap-2 md:flex md:gap-6 w-full md:w-auto mt-2 md:mt-0">
+                    
+                    <!-- SISTEMA -->
+                    <div class="bg-gray-900/60 md:bg-transparent p-2 rounded-lg md:p-0 text-center md:text-right flex flex-col justify-center">
+                        <span class="block text-[9px] md:text-[10px] text-gray-500 uppercase tracking-widest mb-1 md:mb-0">Sistema</span>
+                        <span class="text-gray-400 font-mono text-sm md:text-base">${{ cierre.ventas_totales_sistema }}</span>
+                    </div>
+                    
+                    <!-- REAL -->
+                    <div class="bg-gray-900/60 md:bg-transparent p-2 rounded-lg md:p-0 text-center md:text-right flex flex-col justify-center border border-gray-700 md:border-0">
+                        <span class="block text-[9px] md:text-[10px] text-gray-500 uppercase tracking-widest mb-1 md:mb-0">Real</span>
+                        <span class="text-white font-bold font-mono text-sm md:text-lg">${{ cierre.efectivo_en_caja }}</span>
+                    </div>
+                    
+                    <!-- DIFERENCIA -->
+                    <div class="bg-gray-900/60 md:bg-transparent p-2 rounded-lg md:p-0 text-center md:text-right flex flex-col justify-center
+                        {% if cierre.diferencia < 0 %} border border-red-900/50 shadow-inner shadow-red-900/20 {% elif cierre.diferencia > 0 %} border border-blue-900/50 {% endif %}">
+                        <span class="block text-[9px] md:text-[10px] text-gray-500 uppercase tracking-widest mb-1 md:mb-0">Diferencia</span>
+                        <span class="font-bold font-mono text-sm md:text-lg
+                            {% if cierre.diferencia < 0 %}text-red-400
+                            {% elif cierre.diferencia > 0 %}text-blue-400
+                            {% else %}text-green-500{% endif %}">
+                            ${{ cierre.diferencia }}
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+            {% empty %}
+                <div class="text-center py-16 bg-gray-800 rounded-xl border border-dashed border-gray-600">
+                    <svg class="w-12 h-12 text-gray-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                    <p class="text-gray-400 font-bold">No hay cierres registrados aún.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</body>
+</html>

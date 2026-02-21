@@ -19,7 +19,7 @@ class Orden(models.Model):
     
     # Tiempos para analíticas
     creado_en = models.DateTimeField(auto_now_add=True)
-    actualizado_en = models.DateTimeField(auto_now=True) # Sirve para ver cuánto tardó en salir
+    actualizado_en = models.DateTimeField(auto_now=True)
     
     def tiempo_espera(self):
         return self.actualizado_en - self.creado_en
@@ -49,6 +49,6 @@ class DetalleOrden(models.Model):
         return f"{self.cantidad}x {self.producto.nombre}"
     
     def save(self, *args, **kwargs):
-        # Aseguramos que el subtotal siempre sea precio * cantidad
+        # Asegurar que el subtotal siempre sea precio * cantidad
         self.subtotal = self.producto.precio * self.cantidad
         super().save(*args, **kwargs)
