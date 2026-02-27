@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, TemplateView
@@ -5,9 +6,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction # Importante para guardar receta y producto juntos
 
 from .models import Producto
-from Ventas.models import Orden
+from Ventas.models import Orden, DetalleOrden
 from Inventario.models import Ingrediente
 from .forms import ProductoForm, RecetaFormSet
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import Sum
 
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = 'FoodTruck/home.html'
@@ -43,8 +47,36 @@ class HomeView(LoginRequiredMixin, TemplateView):
         if es_admin:
             from django.db.models import F
             context['alertas_stock'] = Ingrediente.objects.filter(stock_actual__lte=F('stock_minimo')).count()
+        
+        # DATOS PARA EL DASHBOARD ESTADISTICO
+        if es_admin:
+            hoy = timezone.now().date()
+
+            # INGRESOS DEL DIA
+            ordenes_hoy = Orden.objects.filter(creado_en__date=hoy, estado='Entregado')
+            ventas_hoy = ordenes_hoy.exclude(estado='Cancelado').aggregate(Sum('total'))['total__sum']
+            context['ingresos_hoy'] = ventas_hoy if ventas_hoy is not None else 0.00
+
+            # GRAFICA DE LOS ULTIMOS 7 DIAS
+            fechas_str = []
+            ventas_diarias = []
+
+            for i in range(6, -1, -1):
+                dia = hoy - timedelta(days=i)
+                fechas_str.append(dia.strftime('%d %b'))
+
+                # Suma de ventas del día
+                total_dia = Orden.objects.filter(
+                    creado_en__date=dia
+                ).exclude(estado='Cancelado').aggregate(Sum('total'))['total__sum']
+                ventas_diarias.append(float(total_dia or 0.00))
+
+                # CONVERTIMOS LAS LISTAS A JSON PARA QUE JAVASCRIPT LAS PUEDA LEER EN EL HTML
+                context['fechas_chart'] = json.dumps(fechas_str)
+                context['ventas_chart'] = json.dumps(ventas_diarias)
 
         return context
+
 
 class MenuListView(LoginRequiredMixin, ListView):
     model = Producto

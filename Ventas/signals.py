@@ -20,7 +20,7 @@ def descontar_stock_al_entregar(sender, instance, created, **kwargs):
     # Solo procedemos si la orden está 'Entregada' y NO se ha descontado antes
     if instance.estado == 'Entregado' and not instance.inventario_descontado:
         
-        # Usamos 'atomic' para asegurar que si algo falla, no se descuente nada a medias
+        # Se usa 'atomic' para asegurar que si algo falla, no se descuente nada a medias
         with transaction.atomic():
             
             # 1. Obtenemos todos los platillos (detalles) de esta orden
