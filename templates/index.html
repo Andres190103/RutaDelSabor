@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bienvenido - Ruta del Sabor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto Mono', monospace; }
+    </style>
+</head>
+<body class="bg-gray-900 flex flex-col items-center justify-center min-h-[100dvh] p-4 text-center">
+
+    <div class="w-full max-w-lg bg-gray-800 rounded-2xl shadow-2xl overflow-hidden border border-gray-700 relative p-8 md:p-12">
+        
+        <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-orange-500 via-red-500 to-orange-500"></div>
+
+        <div class="inline-flex items-center justify-center w-150 h-32 mb-4">
+            <img src="{% static 'img/logo.png' %}" alt="Logo Ruta del Sabor" class="w-full h-full object-contain drop-shadow-lg">                
+        </div>
+        
+        <h1 class="text-4xl font-bold text-white uppercase tracking-tight mb-2">RutaDelSabor</h1>
+        <p class="text-gray-400 text-sm md:text-base mb-10">
+            Sistema gestor de pedidos, control de inventario y punto de venta para tu FoodTruck.
+        </p>
+
+        <a href="{% url 'login' %}" 
+            class="inline-flex justify-center items-center gap-2 w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg transform hover:scale-105 active:scale-95 transition-all uppercase tracking-wider text-lg">
+            <span>Iniciar Sesión</span>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
+        </a>
+        
+    </div>
+    
+    <p class="text-gray-600 text-xs mt-8 opacity-50 uppercase tracking-widest">
+        &copy; 2026 Ruta del Sabor - FoodTruck System
+    </p>
+
+</body>
+</html>
