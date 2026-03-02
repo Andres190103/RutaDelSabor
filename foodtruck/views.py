@@ -1,8 +1,8 @@
 import json
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView, TemplateView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import ListView, CreateView, UpdateView, TemplateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db import transaction # Importante para guardar receta y producto juntos
 
 from .models import Producto
@@ -12,6 +12,18 @@ from .forms import ProductoForm, RecetaFormSet
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Sum
+
+class AdminRequiredMixin(UserPassesTestMixin):
+    def test_func(self):
+        user = self.request.user
+        # SI ES UN SUPERUSUARIO SE LE DA ACCESO
+        if user.is_superuser:
+            return True
+        # SI EL USUARIO ESTA REGISTRADO CON EL ROL DE ADMIN SE LE DA ACCESO TAMBIEN
+        if hasattr(user, 'perfil') and user.perfil.rol:
+            return user.perfil.rol.nombre.lower() == 'admin'
+        # SI NO CUMPLE CON NINGUNA DE LAS ANTERIORES, SE LE NIEGA EL ACCESO
+        return False
 
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = 'FoodTruck/home.html'
@@ -78,12 +90,12 @@ class HomeView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class MenuListView(LoginRequiredMixin, ListView):
+class MenuListView(LoginRequiredMixin, AdminRequiredMixin, ListView):
     model = Producto
     template_name = 'FoodTruck/producto_list.html'
     context_object_name = 'productos'
 
-class ProductoCreateView(LoginRequiredMixin, CreateView):
+class ProductoCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
     model = Producto
     form_class = ProductoForm
     template_name = 'FoodTruck/producto_form.html'
@@ -114,8 +126,8 @@ class ProductoCreateView(LoginRequiredMixin, CreateView):
                 
         return super().form_valid(form)
 
-# 3. EDITAR PLATILLO (Misma lógica pero con datos existentes)
-class ProductoUpdateView(LoginRequiredMixin, UpdateView):
+# EDITAR PLATILLO (Misma lógica pero con datos existentes)
+class ProductoUpdateView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
     model = Producto
     form_class = ProductoForm
     template_name = 'FoodTruck/producto_form.html'
@@ -143,3 +155,7 @@ class ProductoUpdateView(LoginRequiredMixin, UpdateView):
                 
         return super().form_valid(form)
     
+class ProductoDeleteView(LoginRequiredMixin, AdminRequiredMixin, DeleteView):
+    model = Producto
+    template_name = 'FoodTruck/producto_confirm_delete.html'
+    success_url = reverse_lazy('menu_list')

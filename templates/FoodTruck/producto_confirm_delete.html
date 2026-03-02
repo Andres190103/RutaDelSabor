@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Confirmar Eliminación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto Mono', monospace; }
+        /* Evita delay al tocar botones en pantallas móviles */
+        a, button { touch-action: manipulation; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md bg-gray-800 rounded-2xl shadow-2xl border-t-4 border-red-600 p-6 md:p-8 text-center relative overflow-hidden">
+        
+        <div class="absolute top-0 left-0 w-full h-full bg-red-500 opacity-5 pointer-events-none"></div>
+
+        <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-red-900/50 mb-6 border-2 border-red-500/30">
+            <svg class="h-10 w-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+        </div>
+
+        <h2 class="text-2xl md:text-3xl font-bold mb-3 text-white">¿Eliminar Platillo?</h2>
+        
+        <div class="bg-gray-900/50 rounded-lg p-4 mb-6 border border-gray-700">
+            <p class="text-xl font-bold text-white uppercase">{{ object.nombre }}</p>
+        </div>
+
+        <p class="text-gray-400 mb-8 text-sm md:text-base">
+            Esta acción borrará el platillo y su receta del sistema. 
+            <span class="text-red-400 font-bold block mt-1">No se puede deshacer.</span>
+        </p>
+
+        <form method="post" class="flex flex-col sm:flex-row gap-3 md:gap-4">
+            {% csrf_token %}
+            
+            <a href="{% url 'menu_list' %}" class="order-2 sm:order-1 w-full py-4 bg-gray-700 hover:bg-gray-600 active:bg-gray-500 rounded-xl font-bold text-gray-300 transition uppercase tracking-wider text-center flex justify-center items-center">
+                Cancelar
+            </a>
+            
+            <button type="submit" class="order-1 sm:order-2 w-full py-4 bg-red-600 hover:bg-red-700 active:bg-red-800 rounded-xl font-bold text-white shadow-lg transition uppercase tracking-wider flex justify-center items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                Eliminar
+            </button>
+        </form>
+    </div>
+
+</body>
+</html>
