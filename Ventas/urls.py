@@ -1,5 +1,6 @@
 from django.urls import path
 from Ventas.views import *
+from . import views
 
 urlpatterns = [
     path('orden/create/', CreateViewOrden.as_view(), name='orden_create'),
@@ -10,5 +11,5 @@ urlpatterns = [
 
     path('orden/delete/<int:pk>/', DeleteViewOrden.as_view(), name='orden_delete'),
 
-    
+    path('orden/exportar/', exportar_csv, name='exportar_ventas'),
 ]

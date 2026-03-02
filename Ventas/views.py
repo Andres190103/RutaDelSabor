@@ -7,6 +7,7 @@ from django.views.generic import(
     UpdateView,
     DeleteView
 )
+from django.contrib.auth.decorators import login_required
 from .models import Orden
 from Ventas.Formularios.orden_form import OrdenForm
 from Ventas.Formularios.orden_estado_form import OrdenEstadoForm
@@ -19,6 +20,9 @@ from Ventas.Formularios.orden_estado_form import OrdenEstadoForm
 
 from foodtruck.models import Producto
 import json
+import csv
+from django.http import HttpResponse
+
 
 # Create your views here.
 
@@ -156,4 +160,34 @@ class DeleteViewOrden(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         if hasattr(user, 'perfil') and user.perfil.rol:
             return user.perfil.rol.nombre == 'Admin'
         return False
+
+@login_required   
+def exportar_csv(request):
+    user = request.user
+    es_admin = user.is_superuser or (hasattr(user, 'perfil') and user.perfil.rol and user.perfil.rol.nombre == 'Admin')
     
+    if not es_admin:
+        return redirect('start_home')
+
+    # SE PREPARA LA RESPUESTA HTTP PARA QUE EL NAVEGADOR SEPA QUE ES UN ARCHIVO DESCARGABLE
+    response = HttpResponse(content_type='text/csv')
+    # SE LE ASIGNA EL NOMBRE AL ARCHIVO QUE SE VA A DESCARGAR
+    response['Content-Disposition'] = 'attachment; filename="Reporte_Ventas_RutaDelSabor.csv"'
+    # CREACION DEL OBJETO CSV WRITER PARA ESCRIBIR EN EL ARCHIVO
+    writer = csv.writer(response)
+    # SE ESCRIBE LA PRIMERA FILA CON LOS NOMBRES DE LAS COLUMNAS
+    writer.writerow(['ID de Orden', 'Cliente', 'Estado de la Orden', 'Total ($)', 'Fecha y Hora'])
+    # SE OBTIENEN TODAS LAS ORDENES DE LA BASE DE DATOS
+    ordenes = Orden.objects.all().order_by('-creado_en')
+
+    for orden in ordenes:
+        fecha_formateada = orden.creado_en.strftime("%d/%m/%Y %H:%M")
+
+        writer.writerow([
+            orden.id,
+            orden.cliente_nombre,
+            orden.estado,
+            orden.total,
+            fecha_formateada
+        ])
+    return response

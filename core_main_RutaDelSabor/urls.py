@@ -7,7 +7,6 @@ from django.views.generic import TemplateView
 
 urlpatterns = [
     path('', TemplateView.as_view(template_name='index.html'), name='start_page'),
-    
     path('admin/', admin.site.urls),
     #URL de la app foodtruck
     path('', include('foodtruck.urls')),
