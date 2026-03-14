@@ -92,9 +92,23 @@
                         <span class="text-lg font-bold text-green-400 whitespace-nowrap">${{ producto.precio }}</span>
                     </div>
                     
-                    <p class="text-gray-400 text-xs mb-4 line-clamp-2 flex-1 leading-relaxed">
+                    <p class="text-gray-400 text-xs mb-3 line-clamp-2 flex-1 leading-relaxed">
                         {{ producto.descripcion|default:"Sin descripción disponible." }}
                     </p>
+                    
+                    <div class="bg-gray-900/60 p-3 rounded-lg border border-gray-700 text-xs mb-4">
+                        <div class="flex justify-between items-center text-gray-400 mb-1 border-b border-gray-700 pb-1">
+                            <span class="font-bold uppercase tracking-wider text-[10px]">Costo Receta:</span>
+                            <span class="text-gray-200 font-bold">${{ producto.costo_base_escandallo }}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-gray-400">
+                            <span class="font-bold uppercase tracking-wider text-[10px] text-blue-400">Precio Sugerido:</span>
+                            <span class="text-blue-400 font-bold">${{ producto.precio_sugerido }}</span>
+                        </div>
+                        <div class="text-[9px] text-gray-500 text-right mt-1">
+                            Ganancia: {{ producto.porcentaje_ganancia }}% | IVA: {{ producto.porcentaje_iva }}%
+                        </div>
+                    </div>
                     
                     <div class="grid grid-cols-2 gap-2 mt-auto pt-4">
                         <a href="{% url 'producto_update' producto.id %}" class="bg-gray-700 hover:bg-blue-600 active:bg-blue-700 text-gray-200 hover:text-white py-3 rounded-lg text-center text-[11px] md:text-xs font-bold transition uppercase tracking-wider flex justify-center items-center gap-1 border border-gray-600">

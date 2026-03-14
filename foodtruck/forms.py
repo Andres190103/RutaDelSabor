@@ -5,7 +5,7 @@ from .models import Producto, Receta
 class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
-        fields = ['nombre', 'descripcion', 'precio', 'categoria', 'imagen', 'activo']
+        fields = ['nombre', 'descripcion', 'precio', 'categoria', 'imagen', 'activo', 'porcentaje_ganancia', 'porcentaje_iva']
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'block w-full bg-gray-800 border-gray-700 text-white rounded p-3 focus:border-orange-500 outline-none'}),
             'descripcion': forms.Textarea(attrs={'class': 'block w-full bg-gray-800 border-gray-700 text-white rounded p-3 focus:border-orange-500 outline-none', 'rows': 3}),
@@ -13,7 +13,9 @@ class ProductoForm(forms.ModelForm):
             'categoria': forms.Select(attrs={'class': 'block w-full bg-gray-800 border-gray-700 text-white rounded p-3 focus:border-orange-500 outline-none cursor-pointer'}),
             'imagen': forms.FileInput(attrs={'class': 'block w-full text-gray-400 bg-gray-800 border border-gray-700 rounded cursor-pointer'}),
             'activo': forms.CheckboxInput(attrs={'class': 'w-5 h-5 text-orange-600 rounded focus:ring-orange-500 bg-gray-800 border-gray-600'}),
-        }
+
+            'porcentaje_ganancia': forms.NumberInput(attrs={'class': 'block w-full bg-gray-800 border-gray-700 text-white rounded p-3 focus:border-orange-500 outline-none', 'step': '0.01'}),
+            'porcentaje_iva': forms.NumberInput(attrs={'class': 'block w-full bg-gray-800 border-gray-700 text-white rounded p-3 focus:border-orange-500 outline-none', 'step': '0.01'}),        }
 
 RecetaFormSet = inlineformset_factory(
     Producto,

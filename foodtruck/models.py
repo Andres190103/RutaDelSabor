@@ -1,6 +1,7 @@
 from django.db import models
 import Inventario
 from Inventario.models import Ingrediente  
+from decimal import Decimal
 
 class ConfiguracionNegocio(models.Model):
     nombre_foodtruck = models.CharField(max_length=100)
@@ -27,7 +28,34 @@ class Producto(models.Model):
     imagen = models.ImageField(upload_to='platillos/', null=True, blank=True) # Para Cloudinary
     activo = models.BooleanField(default=True) # Para mostrar/ocultar en menú QR sin borrar
     ingredientes = models.ManyToManyField(Inventario.models.Ingrediente, through='Receta')
+    porcentaje_ganancia = models.DecimalField(
+        max_digits=5, decimal_places=2, default=30.00
+    )
+    porcentaje_iva = models.DecimalField(
+        max_digits=5, decimal_places=2, default=16.00
+    )
+    @property
+    def costo_base_escandallo(self):
+        costo_total = Decimal('0.00')
+        for receta in self.receta_set.all():
+            if receta.ingrediente.ultimo_costo:
+                costo_total += (receta.ingrediente.ultimo_costo * receta.cantidad_necesaria)
+        return round(costo_total, 2)
+    @property
+    def precio_sugerido(self):
+        costo = self.costo_base_escandallo
 
+        if costo == 0:
+            return Decimal('0.00')
+        
+        ganancia = costo * (self.porcentaje_ganancia / Decimal('100.00'))
+
+        subtotal = costo + ganancia
+
+        iva = subtotal * (self.porcentaje_iva / Decimal('100.00'))
+
+        return round(subtotal + iva, 2)
+    
     def __str__(self):
         return self.nombre
 

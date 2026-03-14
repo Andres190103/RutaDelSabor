@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from decimal import Decimal 
 
 
 class Proveedor(models.Model):
@@ -45,7 +46,7 @@ class CompraInsumo(models.Model):
         # Lógica simple: Al guardar una compra, sumamos al stock
         if not self.pk: # Solo si es nueva compra
             self.ingrediente.stock_actual += self.cantidad
-            self.ingrediente.ultimo_costo = self.costo_total / self.cantidad
+            self.ingrediente.ultimo_costo = round(Decimal(str(self.costo_total)) / Decimal(str(self.cantidad)), 2)
             self.ingrediente.save()
         super().save(*args, **kwargs)
 
