@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from .models import *
 from .serializers import *
 
-class DetalleOrdenViewSet(viewsets.ModelSiewSet):
+class DetalleOrdenViewSet(viewsets.ModelViewSet):
     queryset = DetalleOrden.objects.all()
     serializer_class = DetalleOrdenSerializer
 
