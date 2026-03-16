@@ -1,44 +1,34 @@
-// src/App.jsx
-import { useState, useEffect } from 'react';
-import ProductoCard from './components/ProductoCard';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Login from './components/Login';
 
 function App() {
-  // 1. Creamos una "variable de estado" para guardar nuestros productos. 
-  // Empieza como un arreglo vacío [].
-  const [productos, setProductos] = useState([]);
-  useEffect(() => {
-    fetch('http://localhost:8000/api/productos/')
-      .then(respuesta => respuesta.json())
-      .then(datos => setProductos(datos))
-      .catch(error => console.error("Hubo un error al conectar:", error));
-  }, []);
-
   return (
-    <div className="min-h-screen bg-gray-100 p-8 font-sans">
-      
-      {/* Encabezado */}
-      <header className="mb-10 text-center">
-        <h1 className="text-5xl font-black text-orange-600 uppercase tracking-widest mb-2 drop-shadow-sm">
-          RutaDelSabor
-        </h1>
-        <h2 className="text-xl text-gray-600 font-bold">Nuestro Menú</h2>
-      </header>
-      
-      {/* Cuadrícula de Productos */}
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          
-          {/* Aquí usamos nuestro componente mágico. 
-              Por cada producto en la lista, creamos un <ProductoCard /> */}
-          {productos.map(producto => (
-            <ProductoCard key={producto.id} producto={producto} />
-          ))}
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        
+        <Route path="/chef" element={
+          <div className="p-10 text-center text-3xl font-bold text-green-700">
+            ¡Bienvenido al Tablero Del Chef!
+          </div>
+        } />
 
-        </div>
-      </div>
+        <Route path="/cajero" element={
+          <div className="p-10 text-center text-3xl font-bold text-green-700">
+            ¡Bienvenido Al Panel De Punto De Venta¡
+          </div>
+        } />
 
-    </div>
-  );
+        <Route path="/admin" element={
+          <div className="p-10 text-center text-3xl font-bold text-green-700">
+           ¡Bienvenido Al Panel De Administracion! 
+          </div>
+        } />
+
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </BrowserRouter>
+  )
 }
 
 export default App
