@@ -46,6 +46,8 @@ urlpatterns = [
     
     path('accounts/', include('django.contrib.auth.urls')),
 
+    path('api/login/', LoginPersonalizado.as_view(), name='api-login'),
+
     path('api/', include(router.urls)),
 
 ]
