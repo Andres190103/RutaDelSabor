@@ -33,6 +33,7 @@ class LoginPersonalizado(ObtainAuthToken):
         return Response({
             'token': token.key,
             'user_id': user.pk,
-            'email': user.username,
+            'username': user.username,
             'rol': rol_nombre
         })
+    
