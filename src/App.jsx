@@ -14,13 +14,13 @@ function App() {
         } />
 
         <Route path="/cajero" element={
-          <div className="p-10 text-center text-3xl font-bold text-green-700">
+          <div className="p-10 text-center text-3xl font-bold text-blue-700">
             ¡Bienvenido Al Panel De Punto De Venta¡
           </div>
         } />
 
         <Route path="/admin" element={
-          <div className="p-10 text-center text-3xl font-bold text-green-700">
+          <div className="p-10 text-center text-3xl font-bold text-purple-700">
            ¡Bienvenido Al Panel De Administracion! 
           </div>
         } />
