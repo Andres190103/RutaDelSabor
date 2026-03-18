@@ -71,7 +71,7 @@ class CierreDiaForm(forms.ModelForm):
             'observaciones': 'Notas del Cierre (Opcional)'
         }
         widgets = {
-            'ventas_totales_sistema': forms.NumberInput(attrs={'class':'block w-full bg-gray-700 border-gray-600 text-gray-300 rounded p-3 pl-18 text-lg font-mono cursor-not-allowed', 'readonly': 'readonly'}),
+            'ventas_totales_sistema': forms.NumberInput(attrs={'class':'block w-full bg-gray-700 border-gray-600 text-gray-300 rounded p-3 text-lg font-mono cursor-not-allowed', 'readonly': 'readonly', 'style':'padding-left: 35px'}),
             'efectivo_en_caja': forms.NumberInput(attrs={'class':'block w-full bg-gray-800 border-green-500 text-white rounded p-4 text-2xl font-bold focus:ring-2 focus:ring-green-500 outline-none',
                                                         'placeholder': ' 0.00',
                                                         'step': '0.01'}),
