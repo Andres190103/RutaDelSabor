@@ -79,8 +79,9 @@ class HomeView(LoginRequiredMixin, TemplateView):
 
                 # Suma de ventas del día
                 total_dia = Orden.objects.filter(
-                    creado_en__date=dia
-                ).exclude(estado='Cancelado').aggregate(Sum('total'))['total__sum']
+                    creado_en__date=dia,
+                    estado = 'Entregado'
+                ).aggregate(Sum('total'))['total__sum']
                 ventas_diarias.append(float(total_dia or 0.00))
 
                 # CONVERTIMOS LAS LISTAS A JSON PARA QUE JAVASCRIPT LAS PUEDA LEER EN EL HTML
