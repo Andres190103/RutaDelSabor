@@ -61,7 +61,7 @@ class CierreDiaCreateView(LoginRequiredMixin, CreateView):
 
     def get_initial(self):
         # Calculo de el total vendido en el dia
-        today = timezone.now().date()
+        today = timezone.localdate()
         # Filtrar ordenes Pagadas/entregadas en el dia
         ventas_today = Orden.objects.filter(
             creado_en__date=today,

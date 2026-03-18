@@ -62,7 +62,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
         
         # DATOS PARA EL DASHBOARD ESTADISTICO
         if es_admin:
-            hoy = timezone.now().date()
+            hoy = timezone.localdate()
 
             # INGRESOS DEL DIA
             ordenes_hoy = Orden.objects.filter(creado_en__date=hoy, estado='Entregado')
