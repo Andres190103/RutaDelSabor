@@ -55,7 +55,7 @@ class listOrdenes(LoginRequiredMixin, ListView):
         rol = user.perfil.rol.nombre
 
         if rol == 'Chef':
-            return Orden.objects.filter(estado__in=['Pendiente', 'Preparando']).annotate(prioridad=orden_estado).order_by('prioridad', 'creado_en')
+            return Orden.objects.filter(estado__in=['Pendiente', 'Preparando']).order_by('creado_en')
         
         return Orden.objects.annotate(prioridad=orden_estado).order_by('prioridad', 'creado_en')
     
