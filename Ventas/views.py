@@ -14,6 +14,7 @@ from Ventas.Formularios.orden_estado_form import OrdenEstadoForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import render, redirect
 from django.db import transaction
+from django.db.models import *
 
 from Ventas.Formularios.orden_form import DetalleOrdenFormSet, OrdenForm
 from Ventas.Formularios.orden_estado_form import OrdenEstadoForm
@@ -33,10 +34,20 @@ class listOrdenes(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
+
+        orden_estado=Case(
+            When(estado='Pendiete', then=Value(1)),
+            When(estado='Preparando', then=Value(2)),
+            When(estado='Listo', then=Value(3)),
+            When(estado='Entregado', then=Value(4)),
+            When(estado='Cancelado', then=Value(5)),
+            default=Value(0),
+            output_field=IntegerField()
+        )
         
         if user.is_superuser:
             # El "Dios" del sistema ve todo
-            return Orden.objects.all().order_by('-creado_en')
+            return Orden.objects.annotate(prioridad=orden_estado).order_by('prioridad', '-creado_en')
         
         if not hasattr(user, 'perfil'):
             return Orden.objects.none()
@@ -46,7 +57,7 @@ class listOrdenes(LoginRequiredMixin, ListView):
         if rol == 'Chef':
             return Orden.objects.filter(estado__in=['Pendiente', 'Preparando']).order_by('creado_en')
         
-        return Orden.objects.all().order_by('creado_en')
+        return Orden.objects.annotate(prioridad=orden_estado).order_by('prioridad', 'creado_en')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
