@@ -22,6 +22,7 @@ from foodtruck.models import Producto
 import json
 import csv
 from django.http import HttpResponse
+from django.db.models import Case, When, Value, IntegerField
 
 
 # Create your views here.
@@ -34,9 +35,20 @@ class listOrdenes(LoginRequiredMixin, ListView):
     def get_queryset(self):
         user = self.request.user
         
+        orden_estados = Case(
+            When(estado='Pendiente', then=Value(0)),
+            When(estado='Preparando', then=Value(1)),
+            When(estado='Listo para entregar', then=Value(2)),
+            When(estado='Entregado', then=Value(3)),
+            When(estado='Cancelado', then=Value(4)),
+            default=Value(6),
+            output_field=IntegerField()
+
+        )
+
         if user.is_superuser:
             # El "Dios" del sistema ve todo
-            return Orden.objects.all().order_by('-creado_en')
+            return Orden.objects.annotate(prioridad=orden_estados).order_by('prioridad', '-creado_en')
         
         if not hasattr(user, 'perfil'):
             return Orden.objects.none()
@@ -46,7 +58,7 @@ class listOrdenes(LoginRequiredMixin, ListView):
         if rol == 'Chef':
             return Orden.objects.filter(estado__in=['Pendiente', 'Preparando']).order_by('creado_en')
         
-        return Orden.objects.all().order_by('creado_en')
+        return Orden.objects.annotate(prioridad=orden_estados).order_by('prioridad', 'creado_en')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
