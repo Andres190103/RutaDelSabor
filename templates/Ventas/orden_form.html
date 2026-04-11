@@ -163,6 +163,13 @@
                 {% endfor %}
             </div>
 
+            <div class="mt-4 flkex justify-end">
+                <button type="button" id="add-producto" class="bg-blue-600 hover:bg-blue-500 text-white text-bold py-2 px-4 rounded-lg flex items-center gat-2 transition shadow-md">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Agregar Otro Producto
+                </button>
+            </div>
+
             <p class="text-xs text-gray-500 mt-4 text-center md:text-right italic bg-gray-800 p-2 rounded">
                 * Deja el producto vacío para ignorar la línea.
             </p>
@@ -181,12 +188,31 @@
         </form>
     </div>
 
+    <div id="empty-form" class="hidden">
+        <div class="detalle-row bg-gray-900 md:bg-gray-800 p-4 md:p-2 rounded-xl border border-gray-700 shadow-sm grid grid-cols-12 gap-3 items-center relative mt-3">
+            <div class="col-span-12 md:col-span-5">
+                <label class="md:hidden text-[10px] text-gray-400 font-bold uppercase mb-1 block">Seleccionar Producto</label>
+                {{ detalles.empty_form.producto }}
+            </div>
+            <div class="col-span-4 md:col-span-2">
+                <label class="md:hidden text-[10px] text-gray-400 font-bold uppercase mb-1 block text-center">Cant.</label>
+                {{ detalles.empty_form.cantidad }}
+            </div>
+            <div class="col-span-6 md:col-span-4">
+                <label class="md:hidden text-[10px] text-gray-400 font-bold uppercase mb-1 block">Notas</label>
+                {{ detalles.empty_form.notas }}
+            </div>
+            <div class="col-span-2 md:col-span-1 flex flex-col justify-center items-center h-full">
+                {% if detalles.can_delete %}
+                    <label class="md:hidden text-[10px] text-red-500 font-bold uppercase mb-1 block">X</label>
+                    <div class="bg-gray-800 md:bg-transparent p-2 rounded-lg border border-gray-700 md:border-0 hover:bg-red-900/30 transition">
+                        {{ detalles.empty_form.DELETE }}
+                    </div>
+                {% endif %}
+            </div> 
+        </div>
+    </div>
     <script>
-        // --- CORRECCIÓN DE ERROR JSON ---
-        // En Django, {{ precios_json|safe }} renderiza un string JSON válido.
-        // Pero en una vista previa estática (como esta), renderiza literalmente "{{ ... }}", lo que rompe JSON.parse().
-        // Solución: Usamos try-catch para manejar ambos entornos.
-
         let LISTA_PRECIOS = {};
         const inputTotal = document.getElementById('id_total');
 
@@ -244,6 +270,24 @@
                 if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') {
                     calcularTotal();
                 }
+            });
+        }
+
+        const btnAdd = document.getElementById('add-producto');
+        const containerForm = document.getElementById('listaProductos');
+
+        const totalForms = document.getElementById('id_detalles-TOTAL_FORMS');
+
+        if(btnAdd) {
+            btnAdd.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                const emptyFormTemplate = document.getElementById('empty-form').innerHTML;
+                const currentFormCount = parseInt(totalForms.value);
+
+                const newFormHtml = emptyFormTemplate.replace(/__prefix__/g, currentFormCount);
+                containerForm.insertAdjacentHTML('beforeend', newFormHtml);
+                totalForms.value = currentFormCount + 1;
             });
         }
 

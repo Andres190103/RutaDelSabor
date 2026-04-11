@@ -12,4 +12,6 @@ urlpatterns = [
     path('orden/delete/<int:pk>/', DeleteViewOrden.as_view(), name='orden_delete'),
 
     path('orden/exportar/', exportar_csv, name='exportar_ventas'),
+
+    path('orden/<int:pk>/entregar/', orden_entregar, name='orden_entregar'),
 ]

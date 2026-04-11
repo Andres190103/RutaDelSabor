@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import(
     ListView,
@@ -23,6 +23,7 @@ from foodtruck.models import Producto
 import json
 import csv
 from django.http import HttpResponse
+from django.db.models import Case, When, Value, IntegerField
 
 
 # Create your views here.
@@ -45,10 +46,21 @@ class listOrdenes(LoginRequiredMixin, ListView):
             output_field=IntegerField()
         )
         
+        orden_estados = Case(
+            When(estado='Pendiente', then=Value(0)),
+            When(estado='Preparando', then=Value(1)),
+            When(estado='Listo para entregar', then=Value(2)),
+            When(estado='Entregado', then=Value(3)),
+            When(estado='Cancelado', then=Value(4)),
+            default=Value(6),
+            output_field=IntegerField()
+
+        )
+
         if user.is_superuser:
             # El "Dios" del sistema ve todo
-            return Orden.objects.annotate(prioridad=orden_estado).order_by('prioridad', '-creado_en')
-        
+            return Orden.objects.annotate(prioridad=orden_estados).order_by('prioridad', '-creado_en')
+   
         if not hasattr(user, 'perfil'):
             return Orden.objects.none()
         
@@ -57,7 +69,7 @@ class listOrdenes(LoginRequiredMixin, ListView):
         if rol == 'Chef':
             return Orden.objects.filter(estado__in=['Pendiente', 'Preparando']).order_by('creado_en')
         
-        return Orden.objects.annotate(prioridad=orden_estado).order_by('prioridad', 'creado_en')
+        return Orden.objects.annotate(prioridad=orden_estados).order_by('prioridad', 'creado_en')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -202,3 +214,13 @@ def exportar_csv(request):
             fecha_formateada
         ])
     return response
+
+def orden_entregar(request, pk):
+    orden = get_object_or_404(Orden, pk=pk)
+
+    if request.method == 'POST':
+        orden.estado = 'Entregado'
+        orden.save()
+        return redirect('orden_list')
+    
+    return render(request, 'Ventas/orden_entregar_confirm.html', {'orden': orden})
