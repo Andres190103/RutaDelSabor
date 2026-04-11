@@ -144,15 +144,23 @@
                         </a>
                     {% else %}
                         <!-- VISTA ADMIN/CAJA -->
-                        <div class="flex gap-2">
-                            <a href="{% url 'orden_update' orden.id %}" class="flex-1 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-800 font-bold py-3 rounded-lg text-center text-sm border border-gray-300">
-                                Editar
-                            </a>
-                            {% if es_admin and orden.estado != 'Entregado' %}
-                            <a href="{% url 'orden_delete' orden.id %}" onclick="return confirm('¿Eliminar orden?');" class="flex-1 bg-red-100 hover:bg-red-200 active:bg-red-300 text-red-600 font-bold py-3 rounded-lg text-center text-sm border border-red-200">
-                                Cancelar
+                        <div class="flex flex-col gap-2">
+                            {% if orden.estado == 'Listo' %}
+                            <a href="{% url 'orden_entregar' orden.id %}" class="block w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold py-4 px-4 rounded-lg text-center uppercase tracking-widest shadow-lg transform active:scale-95 transition">
+                                Entregar Pedido
                             </a>
                             {% endif %}
+                            <div class="flex gap-2">
+                                <a href="{% url 'orden_update' orden.id %}" class="flex-1 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-800 font-bold py-3 rounded-lg text-center text-sm border border-gray-300 transition">
+                                    Editar
+                                </a>
+                            
+                                {% if es_admin and orden.estado != 'Entregado' %}
+                                <a href="{% url 'orden_delete' orden.id %}" onclick="return confirm('¿Eliminar orden?');" class="flex-1 bg-red-100 hover:bg-red-200 active:bg-red-300 text-red-600 font-bold py-3 rounded-lg text-center text-sm border border-red-200 transition">
+                                    Eliminar
+                                </a>
+                                {% endif %}
+                            </div>
                         </div>
                     {% endif %}
                 </div>

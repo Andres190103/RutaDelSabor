@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import(
     ListView,
@@ -203,3 +203,13 @@ def exportar_csv(request):
             fecha_formateada
         ])
     return response
+
+def orden_entregar(request, pk):
+    orden = get_object_or_404(Orden, pk=pk)
+
+    if request.method == 'POST':
+        orden.estado = 'Entregado'
+        orden.save()
+        return redirect('orden_list')
+    
+    return render(request, 'Ventas/orden_entregar_confirm.html', {'orden': orden})

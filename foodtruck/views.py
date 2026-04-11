@@ -7,7 +7,7 @@ from django.db import transaction # Importante para guardar receta y producto ju
 
 from .models import Producto
 from Ventas.models import Orden, DetalleOrden
-from Inventario.models import Ingrediente
+from .models import Ingrediente, Producto
 from .forms import ProductoForm, RecetaFormSet
 from django.utils import timezone
 from datetime import timedelta
@@ -159,3 +159,14 @@ class ProductoDeleteView(LoginRequiredMixin, AdminRequiredMixin, DeleteView):
     model = Producto
     template_name = 'FoodTruck/producto_confirm_delete.html'
     success_url = reverse_lazy('menu_list')
+
+def menu_cliente(request):
+    productos = Producto.objects.all()
+
+    context = {
+        'productos': productos,
+        'nombre_negocio': "Ruta del Sabor"
+    }
+    return render(request, 'FoodTruck/menu_cliente.html', context)
+
+
